@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ניהול – כדורגל שישי</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--ink:#10231a;--muted:#5b6b62;--line:#e3e9e5;--green:#16a34a;--green-soft:#dcfce7;--amber:#d97706;--amber-soft:#fef3c7;--red:#dc2626;--red-soft:#fee2e2}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);padding:16px}
+.wrap{max-width:760px;margin:0 auto}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{flex:1;min-width:90px;background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{font-size:12px;color:var(--muted);font-weight:600}
+td.t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
+tr.sep td{background:var(--amber-soft);font-weight:700;color:#92400e}
+tr.cancel td{color:#9ca3af;text-decoration:line-through}
+tr.cancel td.act{text-decoration:none}
+.tag{font-size:11px;padding:2px 6px;border-radius:99px;background:var(--green-soft);color:var(--green);font-weight:600;white-space:nowrap}
+button{font-family:inherit;cursor:pointer;border:0;border-radius:9px;padding:9px 12px;font-size:14px;font-weight:600}
+.b-green{background:var(--green);color:#fff}
+.b-gray{background:#eef2ef;color:var(--ink)}
+.b-red{background:var(--red-soft);color:var(--red)}
+.b-sm{padding:5px 8px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input{font-family:inherit;font-size:15px;padding:9px 10px;border:1px solid var(--line);border-radius:9px}
+textarea{width:100%;min-height:220px;font-family:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:9px;direction:rtl}
+.msg{font-size:14px;color:var(--muted);min-height:18px;margin-top:6px}
+.hidden{display:none!important}
+.scroll{overflow-x:auto}
+label.inline{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚽ ניהול הרשמה – כדורגל שישי</h1>
+  <div class="sub" id="sub">טוען…</div>
+
+  <div class="card hidden" id="keyCard">
+    <div class="row"><input id="keyInput" placeholder="קוד מנהל" style="flex:1"><button class="b-green" id="keyBtn">כניסה</button></div>
+    <div class="msg" id="keyMsg"></div>
+  </div>
+
+  <div id="main" class="hidden">
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><b id="sPlay">0</b><span>משחקים</span></div>
+        <div class="stat"><b id="sWait">0</b><span>מזמינים</span></div>
+        <div class="stat"><b id="sConf">0</b><span>אישרו הגעה</span></div>
+        <div class="stat"><b id="sCanc">0</b><span>ביטלו</span></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="b-gray" id="reloadBtn">רענון</button>
+        <label class="inline"><input type="checkbox" id="auto" checked> רענון אוטומטי כל 5 שניות</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <b>הודעה לווטסאפ</b>
+        <label class="inline"><input type="checkbox" id="withTimes"> כולל שעת הרשמה</label>
+      </div>
+      <textarea id="waText" readonly></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="b-green" id="waBtn">שלח בווטסאפ</button>
+        <button class="b-gray" id="copyBtn">העתק</button>
+        <button class="b-gray" id="dlBtn">הורד כקובץ</button>
+      </div>
+      <div class="msg" id="waMsg"></div>
+    </div>
+
+    <div class="card scroll">
+      <table>
+        <thead><tr><th>#</th><th>שם</th><th>זמן הרשמה</th><th>אישר</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <b>הוספה ידנית</b>
+      <div class="row" style="margin-top:8px"><input id="addName" placeholder="שם" style="flex:1"><button class="b-gray" id="addBtn">הוסף לסוף הרשימה</button></div>
+      <div class="row" style="margin-top:12px"><span style="font-size:14px">מספר שחקנים:</span><input id="maxInput" type="number" min="1" max="60" style="width:80px"><button class="b-gray" id="maxBtn">שמור</button></div>
+      <div class="msg" id="addMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var URL_ = "https://llzkqrgvpehxgmrvbeuc.supabase.co/rest/v1/rpc/";
+  var KEY = "sb_publishable_Kx3cVod-t54UJwqBCYiAcg_dzymz2z-";
+  var $ = function(id){ return document.getElementById(id); };
+  var adminKey = null, data = null, autoTimer = null;
+
+  async function rpc(fn, body){
+    var res = await fetch(URL_ + fn, { method:"POST", cache:"no-store",
+      headers:{ apikey:KEY, Authorization:"Bearer " + KEY, "Content-Type":"application/json" },
+      body: JSON.stringify(body || {}) });
+    if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+    var j = await res.json();
+    if (!res.ok){ throw new Error((j && j.message) || ("HTTP " + res.status)); }
+    return j;
+  }
+
+  function readKey(){
+    var m = location.hash.match(/key=([^&]+)/);
+    if (m) return decodeURIComponent(m[1]);
+    try{ return localStorage.getItem("fb_admin_key"); }catch(e){ return null; }
+  }
+
+  function fmtGameDate(d){ var p = d.split("-"); return (+p[2]) + "/" + (+p[1]); }
+
+  function buildText(){
+    if (!data) return "";
+    var withT = $("withTimes").checked;
+    var act = data.rows.filter(function(r){ return r.status === "active"; });
+    var play = act.slice(0, data.max), wait = act.slice(data.max);
+    var line = function(r, i){
+      return (i + 1) + ". " + r.name + (r.confirmed ? " ✅" : "") + (withT ? "  (" + r.registered_at.split(" ")[1] + ")" : "");
+    };
+    var out = ["⚽ שישי " + fmtGameDate(data.game_date) + " ב-14:00", ""];
+    play.forEach(function(r, i){ out.push(line(r, i)); });
+    for (var i = play.length; i < data.max; i++) out.push((i + 1) + ".");
+    out.push("", "מזמינים");
+    if (wait.length) wait.forEach(function(r, i){ out.push(line(r, i)); });
+    else out.push("—");
+    return out.join("\n");
+  }
+
+  function render(){
+    var act = data.rows.filter(function(r){ return r.status === "active"; });
+    var canc = data.rows.filter(function(r){ return r.status !== "active"; });
+    $("sPlay").textContent = Math.min(act.length, data.max) + "/" + data.max;
+    $("sWait").textContent = Math.max(0, act.length - data.max);
+    $("sConf").textContent = act.filter(function(r){ return r.confirmed; }).length;
+    $("sCanc").textContent = canc.length;
+    $("sub").textContent = "משחק: שישי " + fmtGameDate(data.game_date) + " · עודכן " + new Date().toLocaleTimeString("he-IL");
+    if (document.activeElement !== $("maxInput")) $("maxInput").value = data.max;
+    var tb = $("tbody"); tb.innerHTML = "";
+    var addSep = function(text){ var tr = document.createElement("tr"); tr.className = "sep"; var td = document.createElement("td"); td.colSpan = 5; td.textContent = text; tr.appendChild(td); tb.appendChild(tr); };
+    var addRow = function(r, num, cancelled){
+      var tr = document.createElement("tr"); if (cancelled) tr.className = "cancel";
+      var c = function(t, cls){ var td = document.createElement("td"); if (cls) td.className = cls; td.textContent = t; tr.appendChild(td); return td; };
+      c(num);
+      var nameTd = c(r.name + (r.added_by_admin ? " (ידני)" : ""));
+      c(r.registered_at + (cancelled && r.cancelled_at ? "  ✕ " + r.cancelled_at.split(" ")[1] : ""), "t");
+      var ct = c(""); if (r.confirmed){ var s = document.createElement("span"); s.className = "tag"; s.textContent = "✓ אישר"; ct.appendChild(s); }
+      var at = c("", "act"); var row = document.createElement("div"); row.className = "row"; at.appendChild(row);
+      if (cancelled){
+        row.appendChild(btn("החזר", "b-gray b-sm", function(){ act_(r.id, "active"); }));
+      } else {
+        if (!r.confirmed) row.appendChild(btn("אשר", "b-gray b-sm", function(){ act_(r.id, "confirm"); }));
+        row.appendChild(btn("בטל", "b-red b-sm", function(){ act_(r.id, "cancelled", r.name); }));
+      }
+      tb.appendChild(tr);
+    };
+    act.forEach(function(r, i){
+      if (i === data.max) addSep("מזמינים");
+      addRow(r, i < data.max ? (i + 1) : (i - data.max + 1), false);
+    });
+    if (canc.length){ addSep("ביטלו"); canc.forEach(function(r){ addRow(r, "", true); }); }
+    $("waText").value = buildText();
+  }
+
+  function btn(t, cls, fn){ var b = document.createElement("button"); b.className = cls; b.textContent = t; b.onclick = fn; return b; }
+
+  var pendingCancel = null;
+  async function act_(id, status, name){
+    if (status === "cancelled" && pendingCancel !== id){
+      pendingCancel = id; $("addMsg").textContent = "לחץ שוב על 'בטל' כדי לבטל את " + name;
+      setTimeout(function(){ if (pendingCancel === id){ pendingCancel = null; $("addMsg").textContent = ""; } }, 5000);
+      return;
+    }
+    pendingCancel = null; $("addMsg").textContent = "";
+    try{
+      var r = await rpc("admin_set_status", { p_key: adminKey, p_id: id, p_status: status });
+      if (!r.ok) $("addMsg").textContent = r.code === "exists" ? "כבר יש הרשמה פעילה בשם הזה" : "שגיאה";
+    }catch(e){ $("addMsg").textContent = "שגיאה: " + e.message; }
+    load();
+  }
+
+  async function load(){
+    try{
+      data = await rpc("admin_list", { p_key: adminKey });
+      try{ localStorage.setItem("fb_admin_key", adminKey); }catch(e){}
+      $("keyCard").classList.add("hidden"); $("main").classList.remove("hidden");
+      render();
+    }catch(e){
+      if (/unauthorized/.test(e.message)){
+        $("main").classList.add("hidden"); $("keyCard").classList.remove("hidden");
+        $("keyMsg").textContent = adminKey ? "קוד שגוי" : ""; $("sub").textContent = "";
+        try{ localStorage.removeItem("fb_admin_key"); }catch(_){}
+      } else { $("sub").textContent = "בעיית רשת – " + e.message; }
+    }
+  }
+
+  $("keyBtn").onclick = function(){ adminKey = $("keyInput").value.trim(); load(); };
+  $("reloadBtn").onclick = load;
+  $("withTimes").onchange = function(){ $("waText").value = buildText(); };
+  $("auto").onchange = setAuto;
+  function setAuto(){ clearInterval(autoTimer); if ($("auto").checked) autoTimer = setInterval(function(){ if (!document.hidden && adminKey && data) load(); }, 5000); }
+
+  $("waBtn").onclick = function(){ window.open("https://wa.me/?text=" + encodeURIComponent(buildText()), "_blank"); };
+  $("copyBtn").onclick = async function(){
+    var t = buildText();
+    try{ await navigator.clipboard.writeText(t); }
+    catch(e){ var ta = $("waText"); ta.removeAttribute("readonly"); ta.select(); document.execCommand("copy"); ta.setAttribute("readonly", ""); }
+    $("waMsg").textContent = "הועתק ✓"; setTimeout(function(){ $("waMsg").textContent = ""; }, 2000);
+  };
+  $("dlBtn").onclick = function(){
+    var blob = new Blob([buildText()], { type:"text/plain;charset=utf-8" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "football-" + (data ? data.game_date : "list") + ".txt"; document.body.appendChild(a); a.click(); a.remove();
+  };
+  $("addBtn").onclick = async function(){
+    var n = $("addName").value.trim(); if (!n) return;
+    try{
+      var r = await rpc("admin_add", { p_key: adminKey, p_name: n });
+      $("addMsg").textContent = r.ok ? "נוסף ✓" : (r.code === "exists" ? "השם כבר רשום" : "שם לא תקין");
+      if (r.ok) $("addName").value = "";
+    }catch(e){ $("addMsg").textContent = "שגיאה: " + e.message; }
+    load();
+  };
+  $("maxBtn").onclick = async function(){
+    try{ await rpc("admin_set_max", { p_key: adminKey, p_max: parseInt($("maxInput").value, 10) || 20 }); $("addMsg").textContent = "נשמר ✓"; }
+    catch(e){ $("addMsg").textContent = "שגיאה: " + e.message; }
+    load();
+  };
+
+  adminKey = readKey();
+  if (adminKey) load(); else { $("keyCard").classList.remove("hidden"); $("sub").textContent = ""; }
+  setAuto();
+})();
+</script>
+</body>
+</html>

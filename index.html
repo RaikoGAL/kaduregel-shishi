@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>כדורגל שישי – הרשמה</title>
+<meta name="description" content="הרשמה למשחק הכדורגל של שישי">
+<meta property="og:title" content="⚽ הרשמה לכדורגל שישי">
+<meta property="og:description" content="ההרשמה נפתחת ברביעי ב-20:00. 20 הראשונים משחקים.">
+<meta name="theme-color" content="#0f3d2a">
+<link rel="preconnect" href="https://llzkqrgvpehxgmrvbeuc.supabase.co">
+<style>
+:root{
+  --bg:#0f3d2a; --bg2:#14532d; --card:#ffffff; --ink:#10231a; --muted:#5b6b62;
+  --line:#e3e9e5; --green:#16a34a; --green-soft:#dcfce7; --amber:#d97706; --amber-soft:#fef3c7;
+  --red:#dc2626; --red-soft:#fee2e2; --btn:#16a34a; --btn-ink:#fff;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 60px, transparent 60px 120px);
+  color:var(--ink); min-height:100vh; min-height:100dvh;
+  display:flex; justify-content:center; padding:20px 16px 40px;
+}
+.wrap{width:100%; max-width:440px}
+header{color:#fff; text-align:center; margin:8px 0 18px}
+.ball{font-size:44px; line-height:1}
+h1{font-size:26px; margin:8px 0 4px; letter-spacing:-.3px}
+.sub{opacity:.85; font-size:16px}
+.card{background:var(--card); border-radius:18px; padding:22px 20px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+label{display:block; font-weight:600; margin-bottom:8px; font-size:15px}
+input[type=text]{
+  width:100%; font-size:20px; padding:14px 14px; border:2px solid var(--line); border-radius:12px;
+  outline:none; font-family:inherit; color:var(--ink); background:#fff;
+}
+input[type=text]:focus{border-color:var(--green)}
+.hint{color:var(--muted); font-size:13px; margin-top:8px}
+button{font-family:inherit; cursor:pointer}
+.btn{
+  width:100%; margin-top:16px; font-size:20px; font-weight:700; padding:16px; border:0; border-radius:12px;
+  background:var(--btn); color:var(--btn-ink); transition:transform .05s, opacity .2s;
+}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{background:#9ca3af; cursor:not-allowed}
+.btn.secondary{background:#eef2ef; color:var(--ink); font-size:16px; padding:13px}
+.btn.danger{background:var(--red-soft); color:var(--red); font-size:16px; padding:13px}
+.btn.danger.armed{background:var(--red); color:#fff}
+.btn.ok{background:var(--green); font-size:17px; padding:14px}
+.meter{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--muted); margin-bottom:14px}
+.bar{height:8px; background:#eef2ef; border-radius:99px; overflow:hidden; margin-bottom:18px}
+.bar > i{display:block; height:100%; background:var(--green); width:0; transition:width .4s}
+.count-big{font-variant-numeric:tabular-nums}
+.result{text-align:center}
+.icon{width:96px; height:96px; border-radius:50%; margin:4px auto 14px; display:flex; align-items:center; justify-content:center}
+.icon svg{width:56px; height:56px}
+.icon.green{background:var(--green-soft); color:var(--green)}
+.icon.amber{background:var(--amber-soft); color:var(--amber)}
+.icon.red{background:var(--red-soft); color:var(--red)}
+.result h2{margin:0 0 6px; font-size:26px}
+.result .name{font-size:18px; font-weight:600}
+.result .pos{font-size:17px; margin:10px 0 2px}
+.result .time{color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums}
+.pill{display:inline-block; padding:4px 10px; border-radius:99px; font-size:13px; font-weight:600; margin-top:10px}
+.pill.green{background:var(--green-soft); color:var(--green)}
+.pill.gray{background:#eef2ef; color:var(--muted)}
+.msg{margin-top:12px; padding:10px 12px; border-radius:10px; font-size:15px; display:none}
+.msg.show{display:block}
+.msg.err{background:var(--red-soft); color:var(--red)}
+.msg.info{background:var(--amber-soft); color:#92400e}
+.link{background:none; border:0; color:var(--green); font-size:15px; text-decoration:underline; margin-top:14px; padding:6px}
+.center{text-align:center}
+.closed{text-align:center; color:var(--muted); font-size:15px}
+.hidden{display:none !important}
+.spinner{width:22px;height:22px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;vertical-align:middle;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{color:rgba(255,255,255,.55); text-align:center; font-size:12px; margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="ball">⚽</div>
+    <h1>הזמנה למשחק כדורגל</h1>
+    <div class="sub" id="gameLine">שישי · 14:00</div>
+  </header>
+
+  <!-- Form -->
+  <div class="card" id="formCard">
+    <div id="meterWrap" class="hidden">
+      <div class="meter"><span>נרשמו</span><span class="count-big"><b id="count">0</b> / <span id="max">20</span></span></div>
+      <div class="bar"><i id="barFill"></i></div>
+    </div>
+    <form id="form" autocomplete="off" novalidate>
+      <label for="name">שם מלא (שם + שם משפחה)</label>
+      <input type="text" id="name" name="name" maxlength="40" placeholder="למשל: נדב כהן" autocapitalize="words" enterkeyhint="send">
+      <div class="hint">רק את השם שלך – הרשמה אחת לכל אחד. אם כבר נרשמת, כתוב בדיוק את אותו שם מלא כדי לראות סטטוס, לאשר הגעה או לבטל.</div>
+      <button class="btn" id="submitBtn" type="submit" disabled>טוען…</button>
+      <div class="msg" id="formMsg"></div>
+    </form>
+  </div>
+
+  <!-- Result -->
+  <div class="card result hidden" id="resultCard">
+    <div class="icon" id="resIcon"></div>
+    <h2 id="resTitle"></h2>
+    <div class="name" id="resName"></div>
+    <div class="pos" id="resPos"></div>
+    <div class="time" id="resTime"></div>
+    <div id="resPill"></div>
+    <div id="actions">
+      <button class="btn ok hidden" id="confirmBtn" type="button">✅ מאשר הגעה</button>
+      <div class="hint center hidden" id="confirmHint">אישור הגעה נפתח ביום חמישי</div>
+      <button class="btn secondary" id="refreshBtn" type="button">רענון סטטוס</button>
+      <button class="btn danger" id="cancelBtn" type="button">ביטול הגעה</button>
+    </div>
+    <div class="msg" id="resMsg"></div>
+    <button class="link" id="otherBtn" type="button">חזרה לטופס</button>
+  </div>
+
+  <footer>הסדר נקבע לפי זמן ההגעה לשרת, במילישניות</footer>
+</div>
+
+<script>
+(function(){
+  var URL_ = "https://llzkqrgvpehxgmrvbeuc.supabase.co/rest/v1/rpc/";
+  var KEY = "sb_publishable_Kx3cVod-t54UJwqBCYiAcg_dzymz2z-";
+  var $ = function(id){ return document.getElementById(id); };
+  var state = null, offset = 0, timer = null, busy = false, current = null;
+
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  var ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  // POST to an RPC with timeout + retries (all RPCs are idempotent by name)
+  async function rpc(fn, body, tries){
+    tries = tries || 4;
+    var lastErr;
+    for (var i = 0; i < tries; i++){
+      var ctrl = new AbortController();
+      var t = setTimeout(function(){ ctrl.abort(); }, 9000);
+      try{
+        var res = await fetch(URL_ + fn, {
+          method:"POST",
+          headers:{ "apikey":KEY, "Authorization":"Bearer " + KEY, "Content-Type":"application/json" },
+          body: JSON.stringify(body || {}), signal: ctrl.signal, cache:"no-store"
+        });
+        clearTimeout(t);
+        if (res.ok) return await res.json();
+        lastErr = new Error("HTTP " + res.status);
+        if (res.status < 500 && res.status !== 429) throw lastErr;
+      }catch(e){ clearTimeout(t); lastErr = e; }
+      await sleep(400 * (i + 1) + Math.random() * 400);
+    }
+    throw lastErr;
+  }
+
+  function now(){ return Date.now() + offset; }
+  function storeKey(){ return "fb_name_" + (state ? state.game_date : ""); }
+  function saveName(n){ try{ localStorage.setItem(storeKey(), n); }catch(e){} }
+  function loadName(){ try{ return localStorage.getItem(storeKey()); }catch(e){ return null; } }
+  function clearName(){ try{ localStorage.removeItem(storeKey()); }catch(e){} }
+
+  function fmtDate(ms){
+    var d = new Date(ms);
+    return d.toLocaleDateString("he-IL", { timeZone:"Asia/Jerusalem", day:"numeric", month:"numeric" });
+  }
+  function fmtCountdown(ms){
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    var d = Math.floor(s / 86400); s %= 86400;
+    var h = Math.floor(s / 3600); s %= 3600;
+    var m = Math.floor(s / 60); s %= 60;
+    var p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return (d ? d + " ימים " : "") + p(h) + ":" + p(m) + ":" + p(s);
+  }
+  function showMsg(el, text, kind){
+    el.textContent = text; el.className = "msg show " + (kind || "err");
+  }
+  function hideMsg(el){ el.className = "msg"; }
+
+  function renderMeter(){
+    if (!state) return;
+    $("max").textContent = state.max;
+    $("count").textContent = Math.min(state.count, 999);
+    $("barFill").style.width = Math.min(100, state.count / state.max * 100) + "%";
+  }
+
+  function tick(){
+    if (!state || busy) return;
+    var btn = $("submitBtn");
+    var left = state.open_at - now();
+    if (state.is_open || left <= 0){
+      btn.disabled = false;
+      btn.textContent = "הירשם למשחק";
+      $("meterWrap").classList.remove("hidden");
+    } else {
+      btn.disabled = true;
+      btn.textContent = "ההרשמה נפתחת בעוד " + fmtCountdown(left);
+    }
+  }
+
+  async function loadState(){
+    var t0 = Date.now();
+    state = await rpc("get_state");
+    var t1 = Date.now();
+    offset = state.server_now - Math.round((t0 + t1) / 2);
+    $("gameLine").textContent = "שישי " + fmtDate(state.game_at) + " · 14:00";
+    renderMeter();
+  }
+
+  function showResult(r){
+    current = r;
+    $("formCard").classList.add("hidden");
+    $("resultCard").classList.remove("hidden");
+    hideMsg($("resMsg"));
+    var icon = $("resIcon"), title = $("resTitle"), pos = $("resPos");
+    $("resName").textContent = r.name;
+    $("resTime").textContent = r.registered_at ? "נרשמת: " + r.registered_at : "";
+    $("resPill").innerHTML = "";
+    var actions = $("actions");
+    if (r.status === "cancelled"){
+      icon.className = "icon red"; icon.innerHTML = ICON_X;
+      title.textContent = "ההגעה בוטלה";
+      pos.textContent = "המקום שלך עבר לבא בתור. אפשר להירשם מחדש מהטופס (לסוף הרשימה).";
+      actions.classList.add("hidden");
+      return;
+    }
+    actions.classList.remove("hidden");
+    if (r.playing){
+      icon.className = "icon green"; icon.innerHTML = ICON_CHECK;
+      title.textContent = r.existing ? "אתה ברשימה – משחק!" : "אתה משחק!";
+      pos.textContent = "מקום " + r.position + " מתוך " + r.max;
+    } else {
+      icon.className = "icon amber"; icon.innerHTML = ICON_CLOCK;
+      title.textContent = "אתה במזמינים";
+      pos.textContent = "מקום " + r.wait_position + " ברשימת ההמתנה. אם מישהו יבטל – תעלה אוטומטית.";
+    }
+    var pill = document.createElement("span");
+    pill.className = "pill " + (r.confirmed ? "green" : "gray");
+    pill.textContent = r.confirmed ? "✓ אישרת הגעה" : "עוד לא אישרת הגעה";
+    $("resPill").appendChild(pill);
+    $("confirmBtn").classList.toggle("hidden", !r.can_confirm || r.confirmed);
+    $("confirmHint").classList.toggle("hidden", r.can_confirm || r.confirmed);
+    resetCancel();
+  }
+
+  function resetCancel(){
+    var b = $("cancelBtn"); b.classList.remove("armed"); b.textContent = "ביטול הגעה"; b.dataset.armed = "";
+  }
+
+  async function submit(ev){
+    ev.preventDefault();
+    if (busy) return;
+    var name = $("name").value.replace(/\s+/g, " ").trim();
+    hideMsg($("formMsg"));
+    if (!/^\S{2,}( \S{2,})+$/.test(name)){ showMsg($("formMsg"), "צריך לכתוב שם מלא – שם פרטי ושם משפחה (למשל: נדב כהן)"); $("name").focus(); return; }
+    busy = true;
+    var btn = $("submitBtn");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+    try{
+      for (var attempt = 0; attempt < 6; attempt++){
+        var r = await rpc("register", { p_name: name });
+        if (r.ok){ saveName(r.name); showResult(r); refreshCount(); return; }
+        if (r.code === "not_open"){
+          var wait = r.open_at - r.server_now;
+          if (wait <= 8000){ btn.textContent = "רגע…"; await sleep(Math.max(150, wait + 120)); continue; }
+          offset = r.server_now - Date.now();
+          state.open_at = r.open_at; state.is_open = false;
+          showMsg($("formMsg"), "ההרשמה עוד לא נפתחה. היא תיפתח ברביעי ב-20:00.", "info");
+          return;
+        }
+        if (r.code === "need_full_name"){ showMsg($("formMsg"), "צריך לכתוב שם מלא – שם פרטי ושם משפחה"); return; }
+        if (r.code === "bad_name"){ showMsg($("formMsg"), "השם ארוך מדי (עד 40 תווים)"); return; }
+        showMsg($("formMsg"), "משהו השתבש, נסה שוב"); return;
+      }
+    }catch(e){
+      showMsg($("formMsg"), "יש עומס או בעיית רשת – לחץ שוב. השם שלך לא יירשם פעמיים.");
+    }finally{
+      busy = false; tick();
+    }
+  }
+
+  async function refreshCount(){
+    try{ var s = await rpc("get_state", {}, 1); state.count = s.count; renderMeter(); }catch(e){}
+  }
+
+  async function refreshStatus(){
+    if (!current) return;
+    var b = $("refreshBtn"); b.disabled = true; b.textContent = "מרענן…";
+    try{
+      var r = await rpc("my_status", { p_name: current.name });
+      if (r.ok) showResult(r); else { clearName(); backToForm(); }
+    }catch(e){ showMsg($("resMsg"), "בעיית רשת, נסה שוב"); }
+    finally{ b.disabled = false; b.textContent = "רענון סטטוס"; }
+  }
+
+  async function confirmSpot(){
+    var b = $("confirmBtn"); b.disabled = true;
+    try{
+      var r = await rpc("confirm_spot", { p_name: current.name });
+      if (r.ok){ showResult(r); showMsg($("resMsg"), "מעולה, אישרת הגעה 👍", "info"); }
+      else if (r.code === "too_early") showMsg($("resMsg"), "אישור הגעה נפתח ביום חמישי", "info");
+      else showMsg($("resMsg"), "לא נמצאה הרשמה בשם הזה");
+    }catch(e){ showMsg($("resMsg"), "בעיית רשת, נסה שוב"); }
+    finally{ b.disabled = false; }
+  }
+
+  async function cancelSpot(){
+    var b = $("cancelBtn");
+    if (!b.dataset.armed){
+      b.dataset.armed = "1"; b.classList.add("armed"); b.textContent = "בטוח? לחץ שוב כדי לבטל";
+      setTimeout(resetCancel, 5000); return;
+    }
+    b.disabled = true;
+    try{
+      var r = await rpc("cancel_spot", { p_name: current.name });
+      if (r.ok){ showResult(r); refreshCount(); }
+      else showMsg($("resMsg"), "לא נמצאה הרשמה פעילה בשם הזה");
+    }catch(e){ showMsg($("resMsg"), "בעיית רשת, נסה שוב"); }
+    finally{ b.disabled = false; }
+  }
+
+  function backToForm(){
+    $("resultCard").classList.add("hidden");
+    $("formCard").classList.remove("hidden");
+    $("name").value = "";
+    tick();
+  }
+
+  $("form").addEventListener("submit", submit);
+  $("refreshBtn").addEventListener("click", refreshStatus);
+  $("confirmBtn").addEventListener("click", confirmSpot);
+  $("cancelBtn").addEventListener("click", cancelSpot);
+  $("otherBtn").addEventListener("click", backToForm);
+
+  (async function init(){
+    try{
+      await loadState();
+    }catch(e){
+      $("submitBtn").textContent = "בעיית רשת – מנסה שוב…";
+      for (;;){ await sleep(2000); try{ await loadState(); break; }catch(_){} }
+    }
+    tick();
+    timer = setInterval(tick, 250);
+    var saved = loadName();
+    if (saved){
+      try{
+        var r = await rpc("my_status", { p_name: saved }, 2);
+        if (r.ok) showResult(r); else clearName();
+      }catch(e){}
+    }
+  })();
+})();
+</script>
+</body>
+</html>
