@@ -90,7 +90,7 @@ footer{color:rgba(255,255,255,.55); text-align:center; font-size:12px; margin-to
   <!-- Form -->
   <div class="card" id="formCard">
     <div id="meterWrap" class="hidden">
-      <div class="meter"><span>נרשמו</span><span class="count-big"><b id="count">0</b> / <span id="max">20</span></span></div>
+      <div class="meter"><span>נרשמו</span><span class="count-big"><b id="count">0</b> מתוך <span id="max">20</span></span></div>
       <div class="bar"><i id="barFill"></i></div>
     </div>
     <form id="form" autocomplete="off" novalidate>
@@ -219,7 +219,8 @@ footer{color:rgba(255,255,255,.55); text-align:center; font-size:12px; margin-to
     hideMsg($("resMsg"));
     var icon = $("resIcon"), title = $("resTitle"), pos = $("resPos");
     $("resName").textContent = r.name;
-    $("resTime").textContent = r.registered_at ? "נרשמת: " + r.registered_at : "";
+    $("resTime").textContent = "";
+    if (r.registered_at){ var p = r.registered_at.split(" "); var tb = document.createElement("bdi"); tb.dir = "ltr"; tb.textContent = p[1] + "  " + p[0]; $("resTime").append("נרשמת: ", tb); }
     $("resPill").innerHTML = "";
     var actions = $("actions");
     if (r.status === "cancelled"){

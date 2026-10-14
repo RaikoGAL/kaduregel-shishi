@@ -14,7 +14,7 @@ h1{font-size:22px;margin:4px 0 2px}
 .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
 .card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .stats{display:flex;gap:10px;flex-wrap:wrap}
-.stat{flex:1;min-width:90px;background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stat{flex:1;min-width:64px;background:var(--bg);border-radius:10px;padding:10px;text-align:center}
 .stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -22,7 +22,8 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;verti
 th{font-size:12px;color:var(--muted);font-weight:600}
 td.t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;white-space:nowrap;direction:ltr;text-align:right}
 tr.sep td{background:var(--amber-soft);font-weight:700;color:#92400e}
-tr.cancel td{color:#9ca3af;text-decoration:line-through}
+tr.cancel td{color:#9ca3af}
+tr.cancel td:nth-child(2){text-decoration:line-through}
 tr.cancel td.act{text-decoration:none}
 .tag{font-size:11px;padding:2px 6px;border-radius:99px;background:var(--green-soft);color:var(--green);font-weight:600;white-space:nowrap}
 button{font-family:inherit;cursor:pointer;border:0;border-radius:9px;padding:9px 12px;font-size:14px;font-weight:600}
@@ -79,7 +80,7 @@ label.inline{font-size:14px;color:var(--muted);display:flex;align-items:center;g
 
     <div class="card scroll">
       <table>
-        <thead><tr><th>#</th><th>שם</th><th>זמן הרשמה</th><th>אישר</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>שם</th><th>שעת הרשמה</th><th></th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
@@ -145,14 +146,15 @@ label.inline{font-size:14px;color:var(--muted);display:flex;align-items:center;g
     $("sub").textContent = "משחק: שישי " + fmtGameDate(data.game_date) + " · עודכן " + new Date().toLocaleTimeString("he-IL");
     if (document.activeElement !== $("maxInput")) $("maxInput").value = data.max;
     var tb = $("tbody"); tb.innerHTML = "";
-    var addSep = function(text){ var tr = document.createElement("tr"); tr.className = "sep"; var td = document.createElement("td"); td.colSpan = 5; td.textContent = text; tr.appendChild(td); tb.appendChild(tr); };
+    var addSep = function(text){ var tr = document.createElement("tr"); tr.className = "sep"; var td = document.createElement("td"); td.colSpan = 4; td.textContent = text; tr.appendChild(td); tb.appendChild(tr); };
     var addRow = function(r, num, cancelled){
       var tr = document.createElement("tr"); if (cancelled) tr.className = "cancel";
       var c = function(t, cls){ var td = document.createElement("td"); if (cls) td.className = cls; td.textContent = t; tr.appendChild(td); return td; };
       c(num);
       var nameTd = c(r.name + (r.added_by_admin ? " (ידני)" : ""));
-      c(r.registered_at + (cancelled && r.cancelled_at ? "  ✕ " + r.cancelled_at.split(" ")[1] : ""), "t");
-      var ct = c(""); if (r.confirmed){ var s = document.createElement("span"); s.className = "tag"; s.textContent = "✓ אישר"; ct.appendChild(s); }
+      if (r.confirmed){ var s = document.createElement("span"); s.className = "tag"; s.textContent = "✓ אישר"; nameTd.appendChild(document.createElement("br")); nameTd.appendChild(s); }
+      var tt = c(r.registered_at.split(" ")[1], "t"); tt.title = r.registered_at;
+      if (cancelled && r.cancelled_at){ var cs = document.createElement("div"); cs.textContent = "בוטל " + r.cancelled_at.split(" ")[1]; tt.appendChild(cs); }
       var at = c("", "act"); var row = document.createElement("div"); row.className = "row"; at.appendChild(row);
       if (cancelled){
         row.appendChild(btn("החזר", "b-gray b-sm", function(){ act_(r.id, "active"); }));
